@@ -20,6 +20,17 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
+
+people = [
+    { "name": "Obi-Wan Kenobi", "age": 54 },
+    { "name": "Jar Jar Binks", "age": 34 },
+    { "name": "Luke Skywalker", "age": 45 }
+]
+
+planets = [
+    {"name": "Tatooine", }
+]
+
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
@@ -38,6 +49,32 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
+
+# [GET] /people Get a list of all the people in the database
+@app.route('/people', methods=['GET'])
+def list_people():
+    json_text = jsonify(people)
+    return json_text
+
+# [GET] /people/<int:people_id> Get a one single people information
+@app.route('/people/<int:position>', methods=['GET'])
+def list_character(position):
+    print("This is the position to show: ",position)
+    character = people[position]
+    print(character)
+    return jsonify(character), 200
+
+
+def handle_hello():
+
+    response_body = {
+        "msg": "Hello, this is your GET /user response "
+    }
+
+    return jsonify(response_body), 200
+
+
+
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
