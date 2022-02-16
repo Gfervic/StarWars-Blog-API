@@ -28,7 +28,8 @@ people = [
 ]
 
 planets = [
-    {"name": "Tatooine", }
+    {"name": "Tatooine", "population": "200000", "terrain": "desert"},
+    {"name": "Yavin IV", "population": "1000", "terrain": "jungle"}
 ]
 
 # Handle/serialize errors like a JSON object
@@ -64,14 +65,25 @@ def list_character(position):
     print(character)
     return jsonify(character), 200
 
+# [GET] /planets Get a list of all the planets in the database
+@app.route('/planets', methods=['GET'])
+def list_planet():
+    json_text = jsonify(planet)
+    return json_text
 
-def handle_hello():
+# [GET] /planets/<int:planet_id> Get one single planet information
+@app.route('/planets/<int:position>', methods=['GET'])
+def list_character(position):
+    print("This is the position to show: ",position)
+    planet = planets[position]
+    print(planet)
+    return jsonify(planet), 200
 
-    response_body = {
-        "msg": "Hello, this is your GET /user response "
-    }
-
-    return jsonify(response_body), 200
+# [GET] /users Get a list of all the blog post users
+@app.route('/user', methods=['GET'])
+def list_user():
+    json_text = jsonify(user)
+    return json_text
 
 
 
