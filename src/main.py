@@ -8,7 +8,7 @@ from flask_swagger import swagger
 from flask_cors import CORS
 from utils import APIException, generate_sitemap
 from admin import setup_admin
-from models import db, User
+from models import db, User, Character, Planet, FavChar, FavPlan
 #from models import Person
 
 app = Flask(__name__)
@@ -20,17 +20,16 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
+# people = [
+#     { "name": "Obi-Wan Kenobi", "age": 54 },
+#     { "name": "Jar Jar Binks", "age": 34 },
+#     { "name": "Luke Skywalker", "age": 45 }
+# ]
 
-people = [
-    { "name": "Obi-Wan Kenobi", "age": 54 },
-    { "name": "Jar Jar Binks", "age": 34 },
-    { "name": "Luke Skywalker", "age": 45 }
-]
-
-planets = [
-    {"name": "Tatooine", "population": "200000", "terrain": "desert"},
-    {"name": "Yavin IV", "population": "1000", "terrain": "jungle"}
-]
+# planets = [
+#     {"name": "Tatooine", "population": "200000", "terrain": "desert"},
+#     {"name": "Yavin IV", "population": "1000", "terrain": "jungle"}
+# ]
 
 # Handle/serialize errors like a JSON object
 @app.errorhandler(APIException)
@@ -42,6 +41,46 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
+# [GET] /people Get a list of all the people in the database
+@app.route('/people', methods=['GET'])
+def list_people():
+    body = request.get_json()
+    json_text = jsonify(body)
+    return json_text
+
+# [GET] /people/<int:people_id> Get a one single people information
+@app.route('/people/<int:character_id>', methods=['GET'])
+def get_character(character_id):
+    print("This is the position to show: ",character_id)
+    body = request.get_json()
+    character1 = Character.query.get(character_id)
+    print(character1)
+    return jsonify(character1.serialize()), 200
+
+# [GET] /planets Get a list of all the planets in the database
+@app.route('/planets', methods=['GET'])
+def list_planets():
+    body = request.get_json()
+    json_text = jsonify(body)
+    return json_text
+
+# [GET] /planets/<int:planet_id> Get one single planet information
+@app.route('/planets/<int:planet_id>', methods=['GET'])
+def list_planet(planet_id):
+    print("This is the position to show: ",planet_id)
+    body = request.get_json()
+    planet1 = Planet.query.get(planet_id)
+    print(planet1)
+    return jsonify(planet1.serialize()), 200
+
+# [GET] /users Get a list of all the blog post users
+@app.route('/users', methods=['GET'])
+def list_user():
+    users = User.query.all()
+    all_users = list(map(lambda x: x.serialize(), users))
+
+    return jsonify(all_users), 200
+
 @app.route('/user', methods=['GET'])
 def handle_hello():
 
@@ -50,43 +89,6 @@ def handle_hello():
     }
 
     return jsonify(response_body), 200
-
-# [GET] /people Get a list of all the people in the database
-@app.route('/people', methods=['GET'])
-def list_people():
-    json_text = jsonify(people)
-    return json_text
-
-# [GET] /people/<int:people_id> Get a one single people information
-@app.route('/people/<int:position>', methods=['GET'])
-def list_character(position):
-    print("This is the position to show: ",position)
-    character = people[position]
-    print(character)
-    return jsonify(character), 200
-
-# [GET] /planets Get a list of all the planets in the database
-@app.route('/planets', methods=['GET'])
-def list_planet():
-    json_text = jsonify(planet)
-    return json_text
-
-# [GET] /planets/<int:planet_id> Get one single planet information
-@app.route('/planets/<int:position>', methods=['GET'])
-def list_character(position):
-    print("This is the position to show: ",position)
-    planet = planets[position]
-    print(planet)
-    return jsonify(planet), 200
-
-# [GET] /users Get a list of all the blog post users
-@app.route('/user', methods=['GET'])
-def list_user():
-    json_text = jsonify(user)
-    return json_text
-
-
-
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
