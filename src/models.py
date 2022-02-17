@@ -33,7 +33,7 @@ class Character(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     age = db.Column(db.Integer)
-    characters = db.relationship("FavChar", backref='character', lazy=True)
+    fav_characters = db.relationship("FavChar", backref='character', lazy=True)
     # Age should be an integer or a string. When which one? 🤔
 
     def __repr__(self):
@@ -50,7 +50,7 @@ class Planet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     weather = db.Column(db.String(150))
-    planets = db.relationship("FavPlan", backref='planet', lazy=True)
+    fav_planets = db.relationship("FavPlan", backref='planet', lazy=True)
 
     def __repr__(self):
         return '<Planet %r>' % self.name
