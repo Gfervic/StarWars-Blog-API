@@ -21,7 +21,7 @@ db.init_app(app)
 CORS(app)
 setup_admin(app)
 
-# people = [
+# character = [
 #     { "name": "Obi-Wan Kenobi", "age": 54 },
 #     { "name": "Jar Jar Binks", "age": 34 },
 #     { "name": "Luke Skywalker", "age": 45 }
@@ -42,16 +42,16 @@ def handle_invalid_usage(error):
 def sitemap():
     return generate_sitemap(app)
 
-# [GET] /people Get a list of all the people in the database
-@app.route('/people', methods=['GET'])
-def list_people():
+# [GET] /character Get a list of all the character in the database
+@app.route('/characters', methods=['GET'])
+def list_character():
     # lista de instancias de clase
-    all_people = Character.query.all() 
-    all_people = list(map(lambda x: x.serialize(), all_people))
-    return jsonify(all_people), 200
+    all_characters = Character.query.all() 
+    all_characters = list(map(lambda x: x.serialize(), all_characters))
+    return jsonify(all_characters), 200
 
-# [GET] /people/<int:people_id> Get a one single people information
-@app.route('/people/<int:character_id>', methods=['GET'])
+# [GET] /character/<int:character_id> Get a one single character information
+@app.route('/character/<int:character_id>', methods=['GET'])
 def get_character(character_id):
     # print("This is the position to show: ",character_id)
     character1 = Character.query.get(character_id)
@@ -77,7 +77,7 @@ def list_user():
 
 # [GET] /users/favorites Get all the favorites that belong to the current user.
 @app.route('/<int:user_id>/favorites', methods=['GET'])
-def user_favorites(user_id):
+def all_user_favorites(user_id):
     fav_character = FavChar.query.filter_by(user_id=user_id)
     fav_character = list(map(lambda x: x.serialize(), fav_character))
 
@@ -91,18 +91,50 @@ def user_favorites(user_id):
 # [POST] /favorite/planet/<int:planet_id> Add a new favorite planet to the current user with the planet id = planet_id.
 @app.route('/<int:user_id>/favorite/planet/<int:planet_id>', methods=['POST'])
 def list_favorite_planet(user_id, planet_id):
+    request_body = request.get_json(force=True) # get the request body content in a real python data structure
+    # fav_planet = []
+    user_id = request_body.get("user_id", None)
+    planet_id = request_body.get("planet_id", None)
     fav_planet = FavPlan(user_id=user_id, planet_id=planet_id)
     db.session.add(fav_planet)
     db.session.commit()
 
-    return jsonify(fav_planet.serialize()), 200
+    return jsonify(request_body.serialize()), 200
 
-# [POST] /favorite/people/<int:planet_id> Add a new favorite people to the current user with the people id = people_id.
+# [POST] /favorite/character/<int:planet_id> Add a new favorite character to the current user with the character id = character_id.
+@app.route('/<int:user_id>/favorite/character/<int:character_id>', methods=['POST'])
+def list_favorite_character(user_id, character_id):
+    request_body = request.get_json(force=True) # get the request body content in a real python data structure
+    fav_character = []
+    user_id = request_body.get("user_id", None)
+    character_id= request_body.get("character_id", None)
 
+    fav_character = FavChar(user_id=user_id, character_id=character_id)
+    
+    db.session.add(fav_character)
+    db.session.commit()
 
 # [DELETE] /favorite/planet/<int:planet_id> Delete favorite planet with the id = planet_id.
+@app.route('/favorite/planet/<int:planet_id>', methods=['DELETE'])
+def delete_favorite_planet(planet_id):
+    fav_planet = FavPlan.query.get(planet_id)
+    if fav_planet is None:
+        raise APIException('Planet not found', status_code=404)
+    db.session.delete(fav_planet)
+    db.session.commit()   
 
-# [DELETE] /favorite/people/<int:people_id> Delete favorite people with the id = people_id.
+    return jsonify(fav_planet.serialize()), 200
+
+# [DELETE] /favorite/character/<int:character_id> Delete favorite character with the id = character_id.
+@app.route('/favorite/character/<int:character_id>', methods=['DELETE'])
+def delete_favorite_character(character_id):
+    fav_character = FavChar.query.get(character_id)
+    if fav_character is None:
+        raise APIException('Character not found', status_code=404)
+    db.session.delete(fav_character)
+    db.session.commit()   
+
+    return jsonify(fav_character.serialize()), 200
 
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':

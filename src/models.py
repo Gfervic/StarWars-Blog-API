@@ -66,7 +66,6 @@ class FavChar(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(User.id)) 
     character_id = db.Column(db.Integer, db.ForeignKey(Character.id))
     
-    
     def __repr__(self):
         return '<FavChar %r>' % self.character_id 
 
